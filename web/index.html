@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVH Parts Finder — Industrial Parts &amp; Equipment</title>
+    <style>
+        :root {
+            --navy:      #1B3A6B;
+            --orange:    #F47920;
+            --orange-dk: #d9661a;
+            --bg:        #F5F6FA;
+            --card:      #FFFFFF;
+            --t1:        #1A202C;
+            --t2:        #4A5568;
+            --t3:        #A0ADB8;
+            --border:    #E2E8F0;
+            --red:       #E53E3E;
+            --sh-sm:     0 1px 3px rgba(0,0,0,.08);
+            --sh-md:     0 4px 16px rgba(0,0,0,.10);
+            --r:         10px;
+            --r-sm:      6px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--t1);
+            min-height: 100vh; line-height: 1.5;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--navy); height: 64px; padding: 0 28px;
+            display: flex; align-items: center; gap: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo {
+            width: 38px; height: 38px; border-radius: 8px;
+            background: var(--orange); display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 13px;
+            color: #fff; letter-spacing: -.5px; flex-shrink: 0;
+        }
+        .hd-title { flex: 1; }
+        .hd-title h1 { color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -.3px; line-height: 1.2; }
+        .hd-title p  { color: rgba(255,255,255,.55); font-size: 11.5px; }
+        .hd-badge {
+            background: rgba(255,255,255,.1); color: rgba(255,255,255,.75);
+            font-size: 11px; font-weight: 500; padding: 4px 12px;
+            border-radius: 20px; white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero { background: #fff; border-bottom: 1px solid var(--border); padding: 48px 28px 40px; }
+        .hero-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+        .eyebrow {
+            display: inline-block; background: rgba(27,58,107,.07); color: var(--navy);
+            font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .9px; padding: 4px 14px; border-radius: 20px; margin-bottom: 16px;
+        }
+        .hero h2 { font-size: 30px; font-weight: 800; color: var(--t1); margin-bottom: 10px; letter-spacing: -.5px; }
+        .hero .sub { color: var(--t2); font-size: 15px; margin-bottom: 28px; }
+
+        /* mode pills */
+        .input-modes { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .mode-pill {
+            display: flex; align-items: center; gap: 6px; padding: 5px 14px;
+            border-radius: 20px; border: 1.5px solid var(--border);
+            background: var(--bg); color: var(--t2); font-size: 12px; font-weight: 500;
+        }
+        .mode-pill svg { opacity: .55; }
+
+        /* SEARCH FORM */
+        .search-wrap { max-width: 660px; margin: 0 auto 14px; }
+        .search-form { display: flex; gap: 10px; }
+        .si-wrap { flex: 1; position: relative; }
+        .si-icon {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: var(--t3); pointer-events: none;
+            transition: color .2s;
+        }
+        .si-wrap:focus-within .si-icon { color: var(--navy); }
+
+        /* ── THE INPUT ── */
+        .si {
+            width: 100%; padding: 14px 112px 14px 44px;
+            border: 2px solid var(--border); border-radius: var(--r);
+            font-size: 15px; outline: none; background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .si:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(27,58,107,.1); }
+
+        /* icon buttons row inside input */
+        .input-btns {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%);
+            display: flex; gap: 2px; align-items: center;
+        }
+        .icon-btn {
+            width: 32px; height: 32px; border-radius: 50%; border: none;
+            background: transparent; color: var(--t3); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all .18s; flex-shrink: 0; font-size: 15px; font-weight: 700;
+        }
+        .icon-btn:hover { background: var(--bg); color: var(--navy); }
+        /* clear button — hidden by default */
+        #clearBtn { display: none; }
+        #clearBtn.visible { display: flex; }
+        #clearBtn:hover { background: #FFF0F0; color: var(--red); }
+        /* mic active */
+        .icon-btn.recording {
+            color: var(--red); background: rgba(229,62,62,.1);
+            animation: pulse-ring 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse-ring {
+            0%,100% { box-shadow: 0 0 0 0 rgba(229,62,62,.3); }
+            50%      { box-shadow: 0 0 0 6px rgba(229,62,62,0); }
+        }
+        /* camera active (file chosen) */
+        .icon-btn.has-file { color: var(--orange); }
+        .icon-btn.no-support { opacity: .3; cursor: not-allowed; }
+
+        .sb {
+            padding: 14px 26px; background: var(--orange); color: #fff;
+            border: none; border-radius: var(--r);
+            font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: background .2s, transform .1s; white-space: nowrap;
+        }
+        .sb:hover   { background: var(--orange-dk); }
+        .sb:active  { transform: scale(.98); }
+        .sb:disabled { opacity: .65; cursor: not-allowed; }
+
+        /* ATTACHMENT PREVIEW */
+        #attachPreview {
+            display: none; margin-top: 10px;
+            background: rgba(27,58,107,.04);
+            border: 1.5px dashed rgba(27,58,107,.2);
+            border-radius: var(--r-sm); padding: 10px 14px;
+            align-items: center; gap: 12px;
+        }
+        #attachPreview.show { display: flex; }
+        .attach-thumb { width: 52px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+        .attach-vid-icon {
+            width: 52px; height: 52px; border-radius: 6px; background: var(--navy);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 22px;
+        }
+        .attach-info { flex: 1; min-width: 0; }
+        .attach-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .attach-note { font-size: 11.5px; color: var(--t2); margin-top: 2px; }
+        .attach-remove {
+            width: 28px; height: 28px; border-radius: 50%; border: none;
+            background: rgba(229,62,62,.1); color: var(--red); cursor: pointer;
+            font-size: 16px; font-weight: 700; display: flex; align-items: center;
+            justify-content: center; flex-shrink: 0; transition: background .15s;
+        }
+        .attach-remove:hover { background: rgba(229,62,62,.2); }
+
+        /* VOICE STATUS */
+        #voiceStatus {
+            display: none; margin-top: 10px;
+            background: rgba(229,62,62,.06); border: 1.5px solid rgba(229,62,62,.2);
+            border-radius: var(--r-sm); padding: 10px 16px; align-items: center; gap: 10px;
+        }
+        #voiceStatus.show { display: flex; }
+        .voice-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex-shrink: 0; animation: blink .8s ease-in-out infinite alternate; }
+        @keyframes blink { from { opacity: 1; } to { opacity: .2; } }
+        #voiceTxt { font-size: 13px; color: var(--red); font-weight: 500; flex: 1; }
+        #stopBtn {
+            padding: 4px 12px; background: transparent; border: 1.5px solid var(--red);
+            border-radius: 20px; color: var(--red); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all .15s; white-space: nowrap;
+        }
+        #stopBtn:hover { background: var(--red); color: #fff; }
+
+        /* CHIPS */
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-top: 18px; }
+        .chips span { font-size: 12px; color: var(--t3); }
+        .chip {
+            background: var(--bg); border: 1px solid var(--border); color: var(--t2);
+            font-size: 12px; padding: 5px 13px; border-radius: 20px;
+            cursor: pointer; transition: all .15s; font-family: inherit;
+        }
+        .chip:hover { border-color: var(--navy); color: var(--navy); background: rgba(27,58,107,.04); }
+
+        /* MAIN */
+        main { max-width: 920px; margin: 0 auto; padding: 36px 24px 60px; }
+
+        /* empty state */
+        .empty { text-align: center; padding: 60px 24px; }
+        .empty-icon {
+            width: 68px; height: 68px; background: rgba(27,58,107,.06); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
+        }
+        .empty h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+        .empty p  { color: var(--t2); font-size: 14px; max-width: 380px; margin: 0 auto 28px; }
+        .hint-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+        .hint-card {
+            display: flex; align-items: center; gap: 10px;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: var(--r-sm); padding: 12px 16px;
+            font-size: 13px; color: var(--t2); min-width: 160px;
+        }
+        .hint-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .hint-card strong { display: block; font-size: 13px; color: var(--t1); margin-bottom: 2px; }
+        .hint-card small { font-size: 11.5px; }
+
+        /* loading */
+        .loading { display: none; text-align: center; padding: 48px; }
+        .spinner {
+            width: 42px; height: 42px;
+            border: 3px solid var(--border); border-top-color: var(--navy);
+            border-radius: 50%; animation: spin .75s linear infinite; margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { color: var(--t2); font-size: 14px; }
+        .loading small { color: var(--t3); font-size: 12px; margin-top: 4px; display: block; }
+
+        /* error */
+        .err {
+            display: none; background: #FFF5F5; border: 1px solid #FED7D7;
+            border-radius: var(--r-sm); padding: 14px 18px; color: #C53030;
+            font-size: 14px; margin-bottom: 24px;
+        }
+
+        /* results */
+        .results { display: none; }
+
+        /* ANSWER BOX */
+        .answer {
+            background: rgba(27,58,107,.045);
+            border: 1px solid rgba(27,58,107,.12); border-left: 4px solid var(--navy);
+            border-radius: var(--r-sm); padding: 16px 20px; margin-bottom: 32px;
+        }
+        .answer p { font-size: 14px; color: var(--t1); line-height: 1.75; }
+        .answer p strong { font-weight: 700; color: var(--t1); }
+
+        /* new search bar inside results */
+        .next-search {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+            background: #fff; border: 2px solid var(--border); border-radius: var(--r);
+            padding: 10px 16px; cursor: text; transition: border-color .2s;
+        }
+        .next-search:focus-within { border-color: var(--navy); }
+        .next-search input {
+            flex: 1; border: none; outline: none; font-size: 14px;
+            color: var(--t1); background: transparent;
+        }
+        .next-search input::placeholder { color: var(--t3); }
+        .next-search button {
+            padding: 7px 16px; background: var(--orange); color: #fff;
+            border: none; border-radius: var(--r-sm); font-size: 13px;
+            font-weight: 600; cursor: pointer; white-space: nowrap; transition: background .2s;
+        }
+        .next-search button:hover { background: var(--orange-dk); }
+
+        /* section headings */
+        .sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+        .sec-title { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .9px; color: var(--t3); white-space: nowrap; }
+        .sec-line  { flex: 1; height: 1px; background: var(--border); }
+
+        /* BEST MATCH CARD */
+        .bm-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--r); box-shadow: var(--sh-md);
+            overflow: hidden; display: flex; margin-bottom: 44px;
+        }
+        .bm-img {
+            width: 272px; flex-shrink: 0; background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; min-height: 220px;
+        }
+        .bm-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bm-ph { font-size: 52px; opacity: .3; }
+        .bm-body { padding: 28px 32px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .cat-badge {
+            display: inline-block; background: rgba(27,58,107,.08); color: var(--navy);
+            font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .7px; padding: 3px 11px; border-radius: 20px; width: fit-content;
+        }
+        .prod-name { font-size: 21px; font-weight: 800; color: var(--t1); line-height: 1.3; letter-spacing: -.3px; }
+        .prod-desc { font-size: 14px; color: var(--t2); line-height: 1.7; flex: 1; }
+        .card-acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+        .btn-pri {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 20px; background: var(--orange); color: #fff;
+            text-decoration: none; border: none; border-radius: var(--r-sm);
+            font-size: 13px; font-weight: 600; font-family: inherit;
+            cursor: pointer; transition: background .2s;
+        }
+        .btn-pri:hover { background: var(--orange-dk); }
+        .btn-sec {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 18px; background: transparent; color: var(--navy);
+            border: 1.5px solid var(--navy); text-decoration: none;
+            border-radius: var(--r-sm); font-size: 13px; font-weight: 600; transition: all .2s;
+        }
+        .btn-sec:hover { background: var(--navy); color: #fff; }
+
+        /* FEEDBACK BAR */
+        .fb-bar {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+            padding: 12px 18px; background: #fff;
+            border: 1px solid var(--border); border-radius: var(--r-sm);
+            flex-wrap: wrap;
+        }
+        .fb-label { font-size: 13px; color: var(--t2); flex: 1; min-width: 140px; }
+        .fb-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+            background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+            color: var(--t2); transition: all .18s; font-family: inherit;
+        }
+        .fb-btn:hover { border-color: var(--navy); color: var(--navy); background: rgba(27,58,107,.05); }
+        .fb-btn.fb-yes:hover { border-color: #38A169; color: #38A169; background: rgba(56,161,105,.06); }
+        .fb-btn.fb-no:hover  { border-color: var(--red); color: var(--red); background: rgba(229,62,62,.06); }
+        .fb-btn:disabled { opacity: .4; cursor: not-allowed; }
+        .fb-thanks { font-size: 13px; color: #38A169; font-weight: 600; display: none; }
+
+        /* SIMILAR GRID */
+        .sim-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+        .sim-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--r); box-shadow: var(--sh-sm);
+            overflow: hidden; transition: box-shadow .2s, transform .2s;
+        }
+        .sim-card:hover { box-shadow: var(--sh-md); transform: translateY(-3px); }
+        .sim-img {
+            width: 100%; height: 158px; background: var(--bg); overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sim-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .sim-body { padding: 14px 16px 18px; }
+        .sim-body .cat-badge { font-size: 10px; margin-bottom: 8px; }
+        .sim-name { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; line-height: 1.4; color: var(--t1); }
+        .sim-desc {
+            font-size: 12px; color: var(--t2); line-height: 1.6; margin-bottom: 12px;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .btn-link {
+            display: inline-flex; align-items: center; gap: 4px;
+            color: var(--orange); text-decoration: none; font-size: 12px; font-weight: 700;
+            border: none; background: none; padding: 0; cursor: pointer; font-family: inherit;
+        }
+        .btn-link:hover { text-decoration: underline; }
+
+        /* RESPONSIVE */
+        @media (max-width: 700px) {
+            .hero h2 { font-size: 23px; }
+            .search-form { flex-direction: column; }
+            .sb { width: 100%; }
+            .bm-card { flex-direction: column; }
+            .bm-img  { width: 100%; height: 210px; min-height: unset; }
+            .sim-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 460px) { .sim-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="logo">TVH</div>
+    <div class="hd-title">
+        <h1>TVH Parts Finder</h1>
+        <p>Industrial Parts &amp; Equipment Solutions</p>
+    </div>
+    <span class="hd-badge">Parts Specialist</span>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-inner">
+        <span class="eyebrow">Product Search</span>
+        <h2>Find the right part for your equipment</h2>
+        <p class="sub">Type, speak, or show us a photo — we'll find it in our catalogue</p>
+
+        <!-- Input mode indicators -->
+        <div class="input-modes">
+            <div class="mode-pill">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                Text
+            </div>
+            <div class="mode-pill">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                Voice
+            </div>
+            <div class="mode-pill">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Image
+            </div>
+            <div class="mode-pill">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                Video
+            </div>
+        </div>
+
+        <!-- Search form -->
+        <div class="search-wrap">
+            <form class="search-form" id="sf">
+                <div class="si-wrap">
+                    <svg class="si-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input class="si" id="qi" type="text" autocomplete="off"
+                        placeholder="Describe what you need… e.g. 'forklift warning label'"/>
+                    <div class="input-btns">
+                        <!-- Clear button (shown only when input has text) -->
+                        <button type="button" class="icon-btn" id="clearBtn" title="Clear">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                        <!-- Mic button -->
+                        <button type="button" class="icon-btn" id="micBtn" title="Voice search">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8"  y1="23" x2="16" y2="23"/>
+                            </svg>
+                        </button>
+                        <!-- Camera/file button -->
+                        <button type="button" class="icon-btn" id="camBtn" title="Upload image or video">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                        </button>
+                        <input type="file" id="fileInput" accept="image/*,video/*" style="display:none">
+                    </div>
+                </div>
+                <button class="sb" id="sb" type="submit">Search</button>
+            </form>
+
+            <!-- Attachment preview -->
+            <div id="attachPreview">
+                <img id="attachImg" class="attach-thumb" style="display:none" alt="">
+                <div id="attachVid" class="attach-vid-icon" style="display:none">🎬</div>
+                <div class="attach-info">
+                    <div class="attach-name" id="attachName"></div>
+                    <div class="attach-note" id="attachNote"></div>
+                </div>
+                <button class="attach-remove" id="attachRemove" title="Remove file">✕</button>
+            </div>
+
+            <!-- Voice recording status -->
+            <div id="voiceStatus">
+                <div class="voice-dot"></div>
+                <span id="voiceTxt">Listening — speak now</span>
+                <button id="stopBtn" type="button">Stop</button>
+            </div>
+        </div>
+
+        <!-- Quick-try chips -->
+        <div class="chips">
+            <span>Try:</span>
+            <button class="chip" onclick="doSearch('No smoking prohibition sign')">No smoking sign</button>
+            <button class="chip" onclick="doSearch('Forklift maximum load capacity label')">Forklift load label</button>
+            <button class="chip" onclick="doSearch('Safety helmet mandatory sign')">Safety helmet sign</button>
+            <button class="chip" onclick="doSearch('Emergency exit sign green')">Emergency exit</button>
+            <button class="chip" onclick="doSearch('Industrial thermal label printer')">Label printer</button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main>
+
+    <!-- Empty state -->
+    <div class="empty" id="es">
+        <div class="empty-icon">
+            <svg width="30" height="30" fill="none" stroke="var(--navy)" stroke-width="1.8" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+        </div>
+        <h3>Search our product catalogue</h3>
+        <p>Use any combination of text, voice, photo, or video to find the right part or label.</p>
+        <div class="hint-row">
+            <div class="hint-card">
+                <div class="hint-icon" style="background:rgba(27,58,107,.08)">
+                    <svg width="16" height="16" fill="none" stroke="var(--navy)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <div><strong>Type it</strong><small>"forklift warning label"</small></div>
+            </div>
+            <div class="hint-card">
+                <div class="hint-icon" style="background:rgba(229,62,62,.08)">
+                    <svg width="16" height="16" fill="none" stroke="var(--red)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                </div>
+                <div><strong>Say it</strong><small>Click 🎤 and speak</small></div>
+            </div>
+            <div class="hint-card">
+                <div class="hint-icon" style="background:rgba(244,121,32,.08)">
+                    <svg width="16" height="16" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+                <div><strong>Show it</strong><small>Upload photo or video</small></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="ld">
+        <div class="spinner"></div>
+        <p>Searching TVH catalogue…</p>
+        <small id="ldHint"></small>
+    </div>
+
+    <!-- Error -->
+    <div class="err" id="eb"></div>
+
+    <!-- Results -->
+    <div class="results" id="rs">
+
+        <!-- Answer -->
+        <div class="answer"><p id="at"></p></div>
+
+        <!-- Feedback bar -->
+        <div class="fb-bar" id="fbBar">
+            <span class="fb-label">Was this result helpful?</span>
+            <button class="fb-btn fb-yes" id="fbUp">👍 Yes, correct product</button>
+            <button class="fb-btn fb-no"  id="fbDown">👎 Not what I needed</button>
+            <span class="fb-thanks" id="fbThanks">Thanks — feedback saved!</span>
+        </div>
+
+        <!-- ── Inline "search again" bar ── -->
+        <div class="next-search">
+            <svg width="16" height="16" fill="none" stroke="var(--t3)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="nextQi" type="text" placeholder="Search something else…" autocomplete="off">
+            <button id="nextSb" type="button">Search</button>
+        </div>
+
+        <!-- Best match -->
+        <div class="sec-head">
+            <span class="sec-title">Best Match</span>
+            <div class="sec-line"></div>
+        </div>
+
+        <div class="bm-card">
+            <div class="bm-img" id="bi"></div>
+            <div class="bm-body">
+                <span class="cat-badge" id="bc"></span>
+                <div class="prod-name"  id="bn"></div>
+                <p class="prod-desc"   id="bd"></p>
+                <div class="card-acts" id="ba"></div>
+            </div>
+        </div>
+
+        <!-- Similar products -->
+        <div id="ss" style="display:none">
+            <div class="sec-head">
+                <span class="sec-title">Similar Products</span>
+                <div class="sec-line"></div>
+            </div>
+            <div class="sim-grid" id="sg"></div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+(function () {
+
+    /* ── feedback ── */
+    var fbBar    = document.getElementById('fbBar');
+    var fbUp     = document.getElementById('fbUp');
+    var fbDown   = document.getElementById('fbDown');
+    var fbThanks = document.getElementById('fbThanks');
+    var _logId   = null;
+
+    function sendFeedback(verdict) {
+        if (!_logId) return;
+        fbUp.disabled = true;
+        fbDown.disabled = true;
+        fetch('/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ log_id: _logId, feedback: verdict }),
+        }).finally(function () {
+            fbUp.style.display = 'none';
+            fbDown.style.display = 'none';
+            fbThanks.style.display = 'inline';
+        });
+    }
+
+    fbUp.addEventListener('click',   function () { sendFeedback('correct'); });
+    fbDown.addEventListener('click', function () { sendFeedback('incorrect'); });
+
+    /* ── refs ── */
+    var sf         = document.getElementById('sf');
+    var qi         = document.getElementById('qi');
+    var sb         = document.getElementById('sb');
+    var clearBtn   = document.getElementById('clearBtn');
+    var micBtn     = document.getElementById('micBtn');
+    var camBtn     = document.getElementById('camBtn');
+    var fileInput  = document.getElementById('fileInput');
+    var attachPrev = document.getElementById('attachPreview');
+    var attachImg  = document.getElementById('attachImg');
+    var attachVid  = document.getElementById('attachVid');
+    var attachName = document.getElementById('attachName');
+    var attachNote = document.getElementById('attachNote');
+    var attachRem  = document.getElementById('attachRemove');
+    var voiceSt    = document.getElementById('voiceStatus');
+    var voiceTxt   = document.getElementById('voiceTxt');
+    var stopBtn    = document.getElementById('stopBtn');
+    var nextQi     = document.getElementById('nextQi');
+    var nextSb     = document.getElementById('nextSb');
+
+    var selectedFile = null;
+    var isRecording  = false;
+
+    /* ── CLEAR BUTTON — shows / hides based on input content ── */
+    function updateClearBtn() {
+        if (qi.value.length > 0) clearBtn.classList.add('visible');
+        else clearBtn.classList.remove('visible');
+    }
+    qi.addEventListener('input', updateClearBtn);
+    clearBtn.addEventListener('click', function () {
+        qi.value = '';
+        qi.focus();
+        updateClearBtn();
+    });
+
+    /* ── SELECT ALL ON FOCUS so next query overwrites previous ── */
+    qi.addEventListener('focus', function () { this.select(); });
+
+    /* ── VOICE ── */
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = null;
+
+    if (!SR) {
+        micBtn.classList.add('no-support');
+        micBtn.title = 'Voice input not supported in this browser (use Chrome)';
+    } else {
+        recognition = new SR();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = function () {
+            isRecording = true;
+            micBtn.classList.add('recording');
+            voiceSt.classList.add('show');
+            voiceTxt.textContent = 'Listening — speak now';
+        };
+
+        recognition.onresult = function (e) {
+            var final = '', interim = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) {
+                if (e.results[i].isFinal) final += e.results[i][0].transcript;
+                else interim += e.results[i][0].transcript;
+            }
+            qi.value = (final || interim).trim();
+            updateClearBtn();
+            if (final) voiceTxt.textContent = 'Got it — searching…';
+        };
+
+        recognition.onerror = function () {
+            voiceTxt.textContent = 'Could not hear you — try again';
+            setTimeout(stopRecording, 1800);
+        };
+
+        recognition.onend = function () {
+            var q = qi.value.trim();
+            stopRecording();
+            if (q) run(q);
+        };
+    }
+
+    function startRecording() {
+        if (!recognition) return;
+        try { recognition.start(); } catch (e) {}
+    }
+
+    function stopRecording() {
+        isRecording = false;
+        micBtn.classList.remove('recording');
+        voiceSt.classList.remove('show');
+        if (recognition) try { recognition.stop(); } catch (e) {}
+    }
+
+    micBtn.addEventListener('click', function () {
+        if (micBtn.classList.contains('no-support')) return;
+        isRecording ? stopRecording() : startRecording();
+    });
+    stopBtn.addEventListener('click', stopRecording);
+
+    /* ── FILE UPLOAD ── */
+    camBtn.addEventListener('click', function () { fileInput.click(); });
+
+    fileInput.addEventListener('change', function () {
+        var f = fileInput.files[0];
+        if (!f) return;
+        selectedFile = f;
+        camBtn.classList.add('has-file');
+        attachName.textContent = f.name;
+        var isVid = f.type.startsWith('video/');
+        attachNote.textContent = isVid
+            ? 'Video attached · visual search ready'
+            : 'Photo attached · visual search ready';
+        if (!isVid) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                attachImg.src = e.target.result;
+                attachImg.style.display = 'block';
+                attachVid.style.display = 'none';
+            };
+            reader.readAsDataURL(f);
+        } else {
+            attachImg.style.display = 'none';
+            attachVid.style.display = 'flex';
+        }
+        attachPrev.classList.add('show');
+    });
+
+    attachRem.addEventListener('click', clearFile);
+
+    function clearFile() {
+        selectedFile = null;
+        fileInput.value = '';
+        camBtn.classList.remove('has-file');
+        attachPrev.classList.remove('show');
+        attachImg.src = '';
+        attachImg.style.display = 'none';
+        attachVid.style.display = 'none';
+    }
+
+    /* ── SEARCH ── */
+    sf.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var q = qi.value.trim();
+        if (q || selectedFile) run(q);
+    });
+
+    /* "Search again" bar inside results */
+    function nextSearch() {
+        var q = nextQi.value.trim();
+        if (!q) return;
+        qi.value = q;
+        nextQi.value = '';
+        updateClearBtn();
+        clearFile();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        run(q);
+    }
+    nextSb.addEventListener('click', nextSearch);
+    nextQi.addEventListener('keydown', function (e) { if (e.key === 'Enter') nextSearch(); });
+
+    window.doSearch = function (q) {
+        qi.value = q;
+        updateClearBtn();
+        clearFile();
+        run(q);
+    };
+
+    /* ── helpers ── */
+    function hide(id) { document.getElementById(id).style.display = 'none'; }
+    function show(id, v) { document.getElementById(id).style.display = v || 'block'; }
+    function setText(id, t) { document.getElementById(id).textContent = t || ''; }
+
+    function esc(s) {
+        return (s || '').replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    /* Convert **bold** and *italic* markdown to HTML */
+    function renderMd(s) {
+        return (s || '')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g,     '<em>$1</em>');
+    }
+
+    /* Category-coloured SVG placeholder — replaces random picsum stock photos */
+    var CAT_COLOURS = {
+        'Warning Labels':           ['#F6AD55', '#744210'],
+        'Prohibition Signs':        ['#FC8181', '#742A2A'],
+        'Mandatory Signs':          ['#63B3ED', '#1A365D'],
+        'Fire Safety Signs':        ['#FC8181', '#742A2A'],
+        'Emergency & First Aid Signs': ['#68D391', '#1C4532'],
+        'Capacity & Load Decals':   ['#1B3A6B', '#EBF8FF'],
+        'Stock Control Labels':     ['#B794F4', '#44337A'],
+        'Instructional Signs':      ['#F6E05E', '#744210'],
+        'Reflective Tape':          ['#F47920', '#FFF5E6'],
+        'Application Tools':        ['#A0ADB8', '#1A202C'],
+        'Mounting Hardware':        ['#718096', '#EDF2F7'],
+        'Surface Prep':             ['#4FD1C5', '#1D4044'],
+        'Protective Accessories':   ['#4299E1', '#1A365D'],
+        'Safety Equipment':         ['#FC8181', '#742A2A'],
+        'Printing Equipment':       ['#1B3A6B', '#EBF8FF'],
+    };
+
+    function catImg(category, label) {
+        var pair = CAT_COLOURS[category] || ['#1B3A6B', '#EBF8FF'];
+        var bg = pair[0], fg = pair[1];
+        var line1 = (label || category || 'Product').substring(0, 22);
+        var line2 = (label || '').length > 22 ? (label || '').substring(22, 42) : '';
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300">'
+            + '<rect width="400" height="300" fill="' + bg + '"/>'
+            + '<rect x="0" y="250" width="400" height="50" fill="rgba(0,0,0,.18)"/>'
+            + '<text x="200" y="' + (line2 ? '125' : '140') + '" text-anchor="middle"'
+            + ' font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="' + fg + '">' + esc(line1) + '</text>'
+            + (line2 ? '<text x="200" y="148" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="' + fg + '">' + esc(line2) + '</text>' : '')
+            + '<text x="200" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="rgba(255,255,255,.7)">' + esc(category || '') + '</text>'
+            + '</svg>';
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    function extSvg() {
+        return '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">'
+             + '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'
+             + '<polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+    }
+
+    /* TVH URL — always open in a uniquely-named tab so the browser
+       never reuses a previous TVH tab for a different product */
+    var TVH_BASE = 'https://www.tvh.com/en-be';
+    function tvhUrl(u) { return (u && u.indexOf('tvh.com') !== -1) ? u : TVH_BASE; }
+    var _tabCounter = 0;
+    function openTvh(url) {
+        window.open(tvhUrl(url), 'tvh_tab_' + (++_tabCounter));
+    }
+    window.openTvh = openTvh;
+
+    function run(query) {
+        stopRecording();
+        hide('es'); hide('rs'); hide('eb');
+        show('ld');
+        sb.disabled = true; sb.textContent = 'Searching…';
+
+        var hint = document.getElementById('ldHint');
+        hint.textContent = selectedFile
+            ? (selectedFile.type.startsWith('video/') ? 'Analysing video with Gemini AI…' : 'Analysing image with Gemini AI…')
+            : '';
+
+        var fd = new FormData();
+        fd.append('query', query || '');
+        if (selectedFile) fd.append('image', selectedFile, selectedFile.name);
+
+        fetch('/search', { method: 'POST', body: fd })
+            .then(function (r) {
+                if (!r.ok) throw new Error(r.status);
+                return r.json();
+            })
+            .then(function (d) {
+                render(d);
+                /* After a successful search, clear the main input
+                   so the user can type the next query immediately */
+                qi.value = '';
+                updateClearBtn();
+                clearFile();
+            })
+            .catch(function () {
+                document.getElementById('eb').textContent =
+                    'Search failed — please try again.';
+                show('eb'); show('es');
+            })
+            .finally(function () {
+                hide('ld');
+                sb.disabled = false; sb.textContent = 'Search';
+            });
+    }
+
+    function render(d) {
+        /* Answer — render markdown bold/italic */
+        document.getElementById('at').innerHTML = renderMd(d.answer || '');
+
+        /* Feedback bar — reset for new result */
+        _logId = d.log_id || null;
+        fbUp.disabled = false; fbUp.style.display = '';
+        fbDown.disabled = false; fbDown.style.display = '';
+        fbThanks.style.display = 'none';
+        fbBar.style.display = _logId ? 'flex' : 'none';
+
+        /* Best match */
+        var name = d.product_name || '';
+        var cat  = d.category || '';
+        setText('bc', cat);
+        setText('bn', name);
+        setText('bd', d.description || '');
+
+        var bi = document.getElementById('bi');
+        var fallbackSrc = catImg(cat, name);
+        bi.innerHTML = d.image_url
+            ? '<img src="' + esc(d.image_url) + '" alt="' + esc(name)
+              + '" style="width:100%;height:100%;object-fit:cover;display:block"'
+              + ' onerror="this.onerror=null;this.src=\'' + fallbackSrc.replace(/'/g, '%27') + '\'">'
+            : '<img src="' + fallbackSrc + '" alt="' + esc(name)
+              + '" style="width:100%;height:100%;object-fit:cover;display:block">';
+
+        /* Action buttons */
+        var tvhHref = tvhUrl(d.website_url || '');
+        var acts = '<a href="' + esc(tvhHref) + '" target="_blank" rel="noopener noreferrer" class="btn-pri">'
+                 + 'View on TVH ' + extSvg() + '</a>';
+        if (d.catalog_page_image_url) {
+            acts += '<a href="' + esc(d.catalog_page_image_url) + '" target="_blank" rel="noopener noreferrer" class="btn-sec">'
+                  + 'Catalogue Preview'
+                  + '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">'
+                  + '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>'
+                  + '<polyline points="14 2 14 8 20 8"/></svg></a>';
+        }
+        document.getElementById('ba').innerHTML = acts;
+
+        /* Similar products */
+        var similar = d.similar_products || [];
+        var ss = document.getElementById('ss');
+        var sg = document.getElementById('sg');
+        if (similar.length) {
+            sg.innerHTML = similar.map(function (p) {
+                var fb = catImg(p.category, p.product_name);
+                var imgH = p.image_url
+                    ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.product_name || '')
+                      + '" onerror="this.onerror=null;this.src=\'' + fb.replace(/'/g, '%27') + '\'">'
+                    : '<img src="' + fb + '" alt="' + esc(p.product_name || '') + '">';
+                var simHref = tvhUrl(p.website_url || '');
+                return '<div class="sim-card">'
+                    + '<div class="sim-img">' + imgH + '</div>'
+                    + '<div class="sim-body">'
+                    + (p.category ? '<span class="cat-badge">' + esc(p.category) + '</span>' : '')
+                    + '<div class="sim-name">' + esc(p.product_name || 'Product') + '</div>'
+                    + '<p class="sim-desc">' + esc(p.description || '') + '</p>'
+                    + '<a href="' + esc(simHref) + '" target="_blank" rel="noopener noreferrer" class="btn-link">'
+                    + 'View on TVH ' + extSvg() + '</a>'
+                    + '</div></div>';
+            }).join('');
+            ss.style.display = 'block';
+        } else {
+            ss.style.display = 'none';
+        }
+
+        show('rs');
+        document.getElementById('rs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+}());
+</script>
+</body>
+</html>
