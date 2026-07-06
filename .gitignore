@@ -30,7 +30,3 @@ build/
 # OS
 .DS_Store
 Thumbs.db
-
-# Session / scratch files
-SESSION.md
-*.session.md
